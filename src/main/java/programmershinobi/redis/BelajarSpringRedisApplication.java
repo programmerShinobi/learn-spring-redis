@@ -1,4 +1,4 @@
-packagt e programmershinobi.redis;
+package programmershinobi.redis;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
