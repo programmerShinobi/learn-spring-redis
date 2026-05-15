@@ -4,10 +4,7 @@ import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.ListOperations;
-import org.springframework.data.redis.core.SetOperations;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.*;
 
 import java.time.Duration;
 import java.util.Set;
@@ -76,5 +73,21 @@ public class RedisTest {
         Set<String> students = operations.members("students");
         assertEquals(3, students.size());
         assertThat(students, hasItems("Faqih", "Pratama", "Muhti"));
+    }
+
+    @Test
+    void zSet() {
+        ZSetOperations<String, String> operations = redisTemplate.opsForZSet();
+
+        operations.add("score", "Faqih", 100);
+        operations.add("score", "Fadli", 85);
+        operations.add("score", "Firly", 95 );
+        operations.add("score", "Fitrya", 90);
+
+        assertEquals("Faqih", operations.popMax("score").getValue());
+        assertEquals("Firly", operations.popMax("score").getValue());
+        assertEquals("Fitrya", operations.popMax("score").getValue());
+        assertEquals("Fadli", operations.popMax("score").getValue());
+
     }
 }
