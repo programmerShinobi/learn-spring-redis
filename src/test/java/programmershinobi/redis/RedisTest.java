@@ -1,14 +1,18 @@
 package programmershinobi.redis;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.SetOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.Duration;
+import java.util.Set;
 
+import static org.hamcrest.Matchers.hasItems;
 import static org.springframework.test.web.servlet.MockMvcBuilder.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -57,4 +61,20 @@ public class RedisTest {
 
     }
 
+    @Test
+    void set() {
+        SetOperations<String, String> operations = redisTemplate.opsForSet();
+
+        operations.add("students", "Faqih");
+        operations.add("students", "Faqih");
+        operations.add("students", "Pratama");
+        operations.add("students", "Pratama");
+        operations.add("students", "Muhti");
+        operations.add("students", "Muhti");
+        operations.add("students", "Muhti");
+
+        Set<String> students = operations.members("students");
+        assertEquals(3, students.size());
+        assertThat(students, hasItems("Faqih", "Pratama", "Muhti"));
+    }
 }
