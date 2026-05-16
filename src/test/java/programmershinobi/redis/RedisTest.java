@@ -10,9 +10,10 @@ import org.springframework.data.redis.core.*;
 
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.MockMvcBuilder.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -150,7 +151,6 @@ public class RedisTest {
 
     @Test
     void transaction() {
-
         redisTemplate.execute(new SessionCallback<Object>() {
             @Override
             public Object execute(RedisOperations operations) throws DataAccessException {
@@ -167,5 +167,23 @@ public class RedisTest {
         assertEquals("Faqih", redisTemplate.opsForValue().get("test1"));
         assertEquals("Fadli", redisTemplate.opsForValue().get("test2"));
 
+    }
+
+    @Test
+    void pipeline() {
+        List<Object> statuses = redisTemplate.executePipelined(new SessionCallback<Object>() {
+            @Override
+            public Object execute(RedisOperations operations) throws DataAccessException {
+                operations.opsForValue().set("test1", "Faqih", Duration.ofSeconds(2));
+                operations.opsForValue().set("test2", "Fadli", Duration.ofSeconds(2));
+                operations.opsForValue().set("test3", "Firly", Duration.ofSeconds(2));
+                operations.opsForValue().set("test4", "Fitrya", Duration.ofSeconds(2));
+                return null;
+            }
+        });
+
+        assertThat(statuses, hasSize(4));
+        assertThat(statuses, hasItems(true));
+        assertThat(statuses, not(hasItems(false)));
     }
 }
