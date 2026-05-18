@@ -5,6 +5,8 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.geo.*;
 import org.springframework.data.redis.RedisSystemException;
@@ -46,6 +48,9 @@ public class RedisTest {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private CacheManager cacheManager;
 
     @Test
     void redisTemplate() {
@@ -312,6 +317,7 @@ public class RedisTest {
                 .id("1")
                 .name("Nasi Goreng Udang")
                 .price(25_000L)
+                .ttl(1L)
                 .build();
 
         productRepository.save(product);
@@ -328,7 +334,7 @@ public class RedisTest {
     @Test
     void ttl() throws InterruptedException {
         Product product = Product.builder()
-                .id("1")
+                .id("2")
                 .name("Pizza")
                 .price(50_000L)
                 .ttl(3L)
@@ -339,5 +345,21 @@ public class RedisTest {
 
         Thread.sleep(Duration.ofSeconds(5));
         assertFalse(productRepository.findById("2").isPresent());
+    }
+
+    @Test
+    void cache() {
+        Cache cache = cacheManager.getCache("scores");
+        cache.put("Faqih", 100);
+        cache.put("Fadli", 85);
+
+        assertEquals(100, cache.get("Faqih", Integer.class));
+        assertEquals(85, cache.get("Fadli", Integer.class));
+
+        cache.evict("Faqih");
+        cache.evict("Fadli");
+
+        assertNull(cache.get("Faqih"));
+        assertNull(cache.get("Fadli"));
     }
 }
