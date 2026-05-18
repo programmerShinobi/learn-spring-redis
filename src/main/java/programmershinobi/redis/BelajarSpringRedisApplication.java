@@ -13,6 +13,7 @@
 	import org.springframework.data.redis.core.StringRedisTemplate;
 	import org.springframework.data.redis.listener.ChannelTopic;
 	import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+	import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 	import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 	import org.springframework.data.redis.stream.Subscription;
 	import org.springframework.scheduling.annotation.EnableScheduling;
@@ -21,6 +22,7 @@
 
 	@SpringBootApplication
 	@EnableScheduling
+	@EnableRedisRepositories
 	@Slf4j
 	public class BelajarSpringRedisApplication {
 
